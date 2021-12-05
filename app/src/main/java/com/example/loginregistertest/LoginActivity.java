@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText accountInput, passwordInput;
     Button login_btn, register_btn;
     String email, password, is_signed_in;
-    private static final String URL_LOGIN = "https://fathomless-fjord-03751.herokuapp.com/api/login";
+    private static final String URL_LOGIN = "https://dcardanalysislaravel-sedok4caqq-de.a.run.app/api/login";
     SharedPreferences mPreferences;
     String sharedprofFile = "com.protocoderspoint.registration_login";
     SharedPreferences.Editor preferencesEditor;

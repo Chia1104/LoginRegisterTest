@@ -9,10 +9,23 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     SharedPreferences mPreferences;
     String sharedprofFile = "com.protocoderspoint.registration_login";
+    private static final String URL_DETAILS = "https://dcardanalysislaravel-sedok4caqq-de.a.run.app/api/details";
     SharedPreferences.Editor preferencesEditor;
     String is_signed_in, ptoken, pname;
     Button logout_btn;
@@ -31,15 +44,9 @@ public class MainActivity extends AppCompatActivity {
         mPreferences=getSharedPreferences(sharedprofFile,MODE_PRIVATE);
         preferencesEditor = mPreferences.edit();
         ptoken = mPreferences.getString("token","null");
+        details();
         pname = mPreferences.getString("name","null");
         hello_txt.setText("Hello " + pname);
-
-        if(ptoken.equals("null"))
-        {
-            Intent i = new Intent(MainActivity.this,LoginActivity.class);
-            startActivity(i);
-            finish();
-        }
 
         logout_btn.setOnClickListener(v -> {
             preferencesEditor.putString("issignedin", "false");
@@ -50,5 +57,38 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             finish();
         });
+    }
+
+    public void details() {
+        HttpsTrustManager.allowAllSSL();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_DETAILS,
+                response -> {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        String message = jsonObject.getString("message");
+                        if (message != "success") {
+                            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                            startActivity(i);
+                            finish();
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }, error -> {
+
+        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept-Encoding", "gzip, deflate, br");
+                params.put("Accept", "application/json");
+                params.put("Conection", "keep-alive");
+                params.put("Authorization", "Bearer " + ptoken);
+                return params;
+            }
+        };
+        queue.add(stringRequest);
     }
 }
