@@ -13,7 +13,9 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -54,45 +56,49 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void register() {
         HttpsTrustManager.allowAllSSL();
-        RequestQueue queue = MySingleton.getInstance(this.getApplicationContext()).
-                getRequestQueue();
+        RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_REGISTER,
                 response -> {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         String message = jsonObject.getString("message");
-                        if (message != "Unauthorised") {
-                            String name = jsonObject.getString("name");
+                        if (message.equals("success")) {
                             String token = jsonObject.getString("token");
-                            preferencesEditor.putString("issignedin", "true");
                             preferencesEditor.putString("token", token);
-                            preferencesEditor.putString("name", name);
                             preferencesEditor.apply();
                             Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_LONG).show();
                             Intent i = new Intent(RegisterActivity.this, MainActivity.class);
                             startActivity(i);
                             finish();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "register Failed " + message, Toast.LENGTH_LONG).show();
-                            finish();
                         }
-
 
                     } catch (Exception e) {
                         e.printStackTrace();
-                        if (e.getMessage() == null) {
-                            Toast.makeText(getApplicationContext(), "註冊中", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "response Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
+
                     }
                 }, error -> {
-            if (error.getMessage() == null) {
-                Toast.makeText(getApplicationContext(), "註冊中", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getApplicationContext(), "StringRequest Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+
+            try {
+                JSONObject jsonObject = new JSONObject((Map) error);
+                String message = jsonObject.getString("message");
+                JSONObject obj = new JSONObject(message);
+                String email = obj.getString("email");
+                String name = obj.getString("name");
+                String password = obj.getString("password");
+                String c_password = obj.getString("c_password");
+                Toast.makeText(getApplicationContext(), "failed " + email + name + password + c_password, Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+
         }) {
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept-Encoding", "gzip, deflate, br");
+                params.put("Accept", "application/json");
+                params.put("Conection", "keep-alive");
+                return params;
+            }
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -103,7 +109,6 @@ public class RegisterActivity extends AppCompatActivity {
                 return params;
             }
         };
-        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
         queue.add(stringRequest);
     }
 }

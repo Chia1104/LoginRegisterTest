@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     String sharedprofFile = "com.protocoderspoint.registration_login";
     private static final String URL_DETAILS = "https://dcardanalysislaravel-sedok4caqq-de.a.run.app/api/details";
     SharedPreferences.Editor preferencesEditor;
-    String is_signed_in, ptoken, pname;
+    String ptoken;
     Button logout_btn;
     TextView hello_txt;
 
@@ -40,19 +40,9 @@ public class MainActivity extends AppCompatActivity {
 
         logout_btn = findViewById(R.id.logout_btn);
         hello_txt = findViewById(R.id.hello_txt);
-
-        mPreferences=getSharedPreferences(sharedprofFile,MODE_PRIVATE);
-        preferencesEditor = mPreferences.edit();
-        ptoken = mPreferences.getString("token","null");
         details();
-        pname = mPreferences.getString("name","null");
-        hello_txt.setText("Hello " + pname);
-
         logout_btn.setOnClickListener(v -> {
-            preferencesEditor.putString("issignedin", "false");
-            preferencesEditor.putString("token", "null");
-            preferencesEditor.putString("name", "null");
-            preferencesEditor.apply();
+            preferencesEditor.clear().commit();
             Intent i = new Intent(MainActivity.this,LoginActivity.class);
             startActivity(i);
             finish();
@@ -60,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void details() {
+        mPreferences = getSharedPreferences(sharedprofFile,MODE_PRIVATE);
+        preferencesEditor = mPreferences.edit();
+        ptoken = mPreferences.getString("token","null");
         HttpsTrustManager.allowAllSSL();
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_DETAILS,
@@ -67,17 +60,32 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         String message = jsonObject.getString("message");
-                        if (message != "success") {
+
+                        if (message.equals("success")) {
+                            String name = jsonObject.getString("name");
+                            hello_txt.setText("Hello " + name);
+                        } else {
+                            preferencesEditor.clear().commit();
+                            Toast.makeText(getApplicationContext(), "請重新登入", Toast.LENGTH_LONG).show();
                             Intent i = new Intent(MainActivity.this, LoginActivity.class);
                             startActivity(i);
                             finish();
                         }
 
                     } catch (Exception e) {
+                        preferencesEditor.clear().commit();
+                        Toast.makeText(getApplicationContext(), "請重新登入", Toast.LENGTH_LONG).show();
+                        Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(i);
+                        finish();
                         e.printStackTrace();
                     }
                 }, error -> {
-
+            preferencesEditor.clear().commit();
+            Toast.makeText(getApplicationContext(), "請重新登入", Toast.LENGTH_LONG).show();
+            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(i);
+            finish();
         }) {
             @Override
             public Map<String, String> getHeaders() {

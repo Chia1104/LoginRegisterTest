@@ -61,44 +61,39 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login() {
         HttpsTrustManager.allowAllSSL();
-        RequestQueue queue = MySingleton.getInstance(this.getApplicationContext()).
-                getRequestQueue();
+        RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_LOGIN,
                 response -> {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         String message = jsonObject.getString("message");
-                        if (message != "Unauthorised") {
-                            String name = jsonObject.getString("name");
+                        if (message.equals("success")) {
                             String token = jsonObject.getString("token");
-                            preferencesEditor.putString("issignedin", "true");
                             preferencesEditor.putString("token", token);
-                            preferencesEditor.putString("name", name);
                             preferencesEditor.apply();
                             Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_LONG).show();
                             Intent i = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(i);
                             finish();
                         } else {
-                            Toast.makeText(getApplicationContext(), "Login Failed " + message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "登入失敗", Toast.LENGTH_LONG).show();
                             finish();
                         }
 
                     } catch (Exception e) {
                         e.printStackTrace();
-                        if (e.getMessage() == null) {
-                            Toast.makeText(getApplicationContext(), "登入中", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "response Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
+                        Toast.makeText(getApplicationContext(), "登入失敗", Toast.LENGTH_LONG).show();
                     }
                 }, error -> {
-            if (error.getMessage() == null) {
-                Toast.makeText(getApplicationContext(), "登入中", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getApplicationContext(), "StringRequest Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-            }
+            Toast.makeText(getApplicationContext(), "登入失敗", Toast.LENGTH_LONG).show();
         }) {
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept-Encoding", "gzip, deflate, br");
+                params.put("Accept", "application/json");
+                params.put("Conection", "keep-alive");
+                return params;
+            }
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -107,7 +102,6 @@ public class LoginActivity extends AppCompatActivity {
                 return params;
             }
         };
-        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
         queue.add(stringRequest);
     }
 }
