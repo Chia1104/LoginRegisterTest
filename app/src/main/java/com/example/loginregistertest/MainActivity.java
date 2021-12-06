@@ -17,6 +17,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -64,12 +65,6 @@ public class MainActivity extends AppCompatActivity {
                         if (message.equals("success")) {
                             String name = jsonObject.getString("name");
                             hello_txt.setText("Hello " + name);
-                        } else {
-                            preferencesEditor.clear().commit();
-                            Toast.makeText(getApplicationContext(), "請重新登入", Toast.LENGTH_LONG).show();
-                            Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                            startActivity(i);
-                            finish();
                         }
 
                     } catch (Exception e) {
@@ -78,14 +73,18 @@ public class MainActivity extends AppCompatActivity {
                         Intent i = new Intent(MainActivity.this, LoginActivity.class);
                         startActivity(i);
                         finish();
-                        e.printStackTrace();
                     }
                 }, error -> {
-            preferencesEditor.clear().commit();
-            Toast.makeText(getApplicationContext(), "請重新登入", Toast.LENGTH_LONG).show();
-            Intent i = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(i);
-            finish();
+            if (error.networkResponse.statusCode == 401) {
+                preferencesEditor.clear().commit();
+                Toast.makeText(getApplicationContext(), "請重新登入", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(i);
+                finish();
+            } else {
+                Toast.makeText(getApplicationContext(), "Could not fetch!", Toast.LENGTH_LONG).show();
+            }
+
         }) {
             @Override
             public Map<String, String> getHeaders() {

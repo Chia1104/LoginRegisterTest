@@ -78,17 +78,21 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 }, error -> {
 
-            try {
-                JSONObject jsonObject = new JSONObject((Map) error);
-                String message = jsonObject.getString("message");
-                JSONObject obj = new JSONObject(message);
-                String email = obj.getString("email");
-                String name = obj.getString("name");
-                String password = obj.getString("password");
-                String c_password = obj.getString("c_password");
-                Toast.makeText(getApplicationContext(), "failed " + email + name + password + c_password, Toast.LENGTH_LONG).show();
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if (error.networkResponse.statusCode == 401) {
+                try {
+                    JSONObject jsonObject = new JSONObject((Map) error);
+                    String message = jsonObject.getString("message");
+                    JSONObject obj = new JSONObject(message);
+                    String email = obj.getString("email");
+                    String name = obj.getString("name");
+                    String password = obj.getString("password");
+                    String c_password = obj.getString("c_password");
+                    Toast.makeText(getApplicationContext(), "failed " + email + name + password + c_password, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "Could not fetch!", Toast.LENGTH_LONG).show();
             }
 
         }) {

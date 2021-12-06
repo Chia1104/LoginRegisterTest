@@ -72,12 +72,11 @@ public class LoginActivity extends AppCompatActivity {
                             preferencesEditor.putString("token", token);
                             preferencesEditor.apply();
                             Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_LONG).show();
-                            Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(i);
+                            Intent i1 = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(i1);
                             finish();
                         } else {
                             Toast.makeText(getApplicationContext(), "登入失敗", Toast.LENGTH_LONG).show();
-                            finish();
                         }
 
                     } catch (Exception e) {
@@ -85,7 +84,11 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "登入失敗", Toast.LENGTH_LONG).show();
                     }
                 }, error -> {
-            Toast.makeText(getApplicationContext(), "登入失敗", Toast.LENGTH_LONG).show();
+            if (error.networkResponse.statusCode == 401) {
+                Toast.makeText(getApplicationContext(), "登入失敗", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Could not fetch!", Toast.LENGTH_LONG).show();
+            }
         }) {
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
