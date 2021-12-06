@@ -24,7 +24,7 @@ import java.util.Map;
 public class RegisterActivity extends AppCompatActivity {
     EditText nameInput, emailInput, passwordInput2, cpasswordInput;
     String name, email, password, cpassword;
-    Button login_btn, register_btn;
+    Button loginpage_btn, register_btn;
     private static final String URL_REGISTER = "https://dcardanalysislaravel-sedok4caqq-de.a.run.app/api/register";
     SharedPreferences mPreferences;
     String sharedprofFile = "com.protocoderspoint.registration_login";
@@ -41,8 +41,10 @@ public class RegisterActivity extends AppCompatActivity {
         emailInput = findViewById(R.id.emailInput);
         passwordInput2 = findViewById(R.id.passwordInput2);
         cpasswordInput = findViewById(R.id.cpasswordInput);
+        loginpage_btn = findViewById(R.id.loginpage_btn);
+        register_btn = findViewById(R.id.register_btn);
 
-        login_btn.setOnClickListener(v -> {
+        loginpage_btn.setOnClickListener(v -> {
             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
         });
         register_btn.setOnClickListener(v -> {
@@ -79,18 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }, error -> {
 
             if (error.networkResponse.statusCode == 401) {
-                try {
-                    JSONObject jsonObject = new JSONObject((Map) error);
-                    String message = jsonObject.getString("message");
-                    JSONObject obj = new JSONObject(message);
-                    String email = obj.getString("email");
-                    String name = obj.getString("name");
-                    String password = obj.getString("password");
-                    String c_password = obj.getString("c_password");
-                    Toast.makeText(getApplicationContext(), "failed " + email + name + password + c_password, Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Toast.makeText(getApplicationContext(), "failed ", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(getApplicationContext(), "Could not fetch!", Toast.LENGTH_LONG).show();
             }

@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     EditText accountInput, passwordInput;
-    Button login_btn, register_btn;
+    Button login_btn, registerpage_btn;
     String email, password, is_signed_in;
     private static final String URL_LOGIN = "https://dcardanalysislaravel-sedok4caqq-de.a.run.app/api/login";
     SharedPreferences mPreferences;
@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         accountInput = findViewById(R.id.accountInput);
         passwordInput = findViewById(R.id.passwordInput);
         login_btn = findViewById(R.id.login_btn);
-        register_btn = findViewById(R.id.register_btn);
+        registerpage_btn = findViewById(R.id.registerpage_btn);
 
         login_btn.setOnClickListener(v -> {
             email = accountInput.getText().toString().trim();
@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
             login();
         });
 
-        register_btn.setOnClickListener(v -> {
+        registerpage_btn.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         });
     }
